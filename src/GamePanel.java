@@ -9,6 +9,9 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
  * Draws the game and handles mouse clicks.
@@ -28,6 +31,9 @@ public class GamePanel extends JPanel {
     private Rectangle endTurnButton;
     private Rectangle playAgainButton;
     private Rectangle menuButton;
+    private BufferedImage soldierImage;
+    private BufferedImage archerImage;
+    private BufferedImage knightImage;
 
     /**
      * Creates the panel.
@@ -52,6 +58,7 @@ public class GamePanel extends JPanel {
                 repaint();
             }
         });
+        loadImages();
     }
 
     /**
@@ -98,6 +105,29 @@ public class GamePanel extends JPanel {
      * Paints the correct screen.
      * @param g graphics context
      */
+    
+    private void loadImages() {
+    	 try {
+    	        soldierImage = ImageIO.read(getClass().getResource("/images/soldier.jpg"));
+    	        archerImage = ImageIO.read(getClass().getResource("/images/archer.jpg"));
+    	        knightImage = ImageIO.read(getClass().getResource("/images/knight.jpg"));
+    	        
+    	    } catch (IOException e) {
+    	        e.printStackTrace();
+    	    }
+    }
+    
+    private BufferedImage getUnitImage(GameUnit unit) {
+    	if (unit instanceof Soldier) {
+    	return soldierImage;
+    	} else if (unit instanceof Archer) {
+    	return archerImage;
+    	} else if (unit instanceof Knight) {
+    	return knightImage;
+    	}
+    	return null;
+    	}
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -195,20 +225,43 @@ public class GamePanel extends JPanel {
     }
 
     private void drawUnits(Graphics2D g2, List<GameUnit> units) {
-        for (GameUnit unit : units) {
-            if (!unit.isAlive()) {
-                continue;
-            }
-            int x = BOARD_X + unit.getCol() * TILE_SIZE;
-            int y = BOARD_Y + unit.getRow() * TILE_SIZE;
-            g2.setColor(unit.isEnemy() ? new Color(180, 70, 70) : new Color(60, 110, 210));
-            g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
-            g2.setColor(Color.WHITE);
-            g2.setFont(new Font("SansSerif", Font.BOLD, 18));
-            g2.drawString(unit.getTypeLabel(), x + 26, y + 38);
-            g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            g2.drawString(String.valueOf(unit.getHealth()), x + 5, y + 15);
-        }
+//        for (GameUnit unit : units) {
+//            if (!unit.isAlive()) {
+//                continue;
+//            }
+//            int x = BOARD_X + unit.getCol() * TILE_SIZE;
+//            int y = BOARD_Y + unit.getRow() * TILE_SIZE;
+//            g2.setColor(unit.isEnemy() ? new Color(180, 70, 70) : new Color(60, 110, 210));
+//            g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
+//            g2.setColor(Color.WHITE);
+//            g2.setFont(new Font("SansSerif", Font.BOLD, 18));
+//            g2.drawString(unit.getTypeLabel(), x + 26, y + 38);
+//            g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+//            g2.drawString(String.valueOf(unit.getHealth()), x + 5, y + 15);
+//        }
+    
+    		for (GameUnit unit : units) {
+    		if (!unit.isAlive()) {
+    		continue;
+    		}
+
+    		int x = BOARD_X + unit.getCol() * TILE_SIZE;
+    		int y = BOARD_Y + unit.getRow() * TILE_SIZE;
+
+    		g2.setColor(unit.isEnemy() ? new Color(180, 70, 70) : new Color(60, 110, 210));
+    		g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
+
+    		BufferedImage unitImage = getUnitImage(unit);
+    		if (unitImage != null) {
+    		g2.drawImage(unitImage, x + 12, y + 12, TILE_SIZE - 24, TILE_SIZE - 24, null);
+    		}
+
+    		g2.setColor(Color.WHITE);
+    		g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+    		g2.drawString(String.valueOf(unit.getHealth()), x + 5, y + 15);
+    		}
+    		
+
     }
 
     private void drawSidebar(Graphics2D g2) {
