@@ -17,10 +17,21 @@ public class Board {
         this.rows = rows;
         this.cols = cols;
         grid = new Tile[rows][cols];
+
+        int middle = cols / 2; 
+
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                String terrain = ((r + c) % 2 == 0) ? "Forest" : "Plain";
-                grid[r][c] = new Tile(r, c, terrain);
+                if (r == middle) {
+                    if (c == rows / 4 || c == (3 * rows) / 4) {
+                        grid[r][c] = new Tile(r, c, "Bridge");
+                    } else {
+                        grid[r][c] = new Tile(r, c, "River");
+                    }
+                } else {
+                    String terrain = ((r + c) % 2 == 0) ? "Forest" : "Plain";
+                    grid[r][c] = new Tile(r, c, terrain);
+                }
             }
         }
     }

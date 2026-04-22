@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -108,9 +109,9 @@ public class GamePanel extends JPanel {
     
     private void loadImages() {
     	 try {
-    	        soldierImage = ImageIO.read(getClass().getResource("/images/soldier.jpg"));
-    	        archerImage = ImageIO.read(getClass().getResource("/images/archer.jpg"));
-    	        knightImage = ImageIO.read(getClass().getResource("/images/knight.jpg"));
+    		 soldierImage = ImageIO.read(new File("images/soldier.jpg"));
+    	        archerImage = ImageIO.read(new File("images/archer.jpg"));
+    	        knightImage = ImageIO.read(new File("images/knight.jpg"));
     	        
     	    } catch (IOException e) {
     	        e.printStackTrace();
@@ -148,10 +149,10 @@ public class GamePanel extends JPanel {
     private void drawMenu(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("SansSerif", Font.BOLD, 42));
-        g2.drawString("Grid Wars", 330, 120);
+        g2.drawString("Tile Fight", 330, 120);
 
         g2.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        g2.drawString("A turn-based strategy game built with Java Swing", 250, 160);
+        g2.drawString("If your parents won't let you download clash royale", 250, 160);
 
         drawButton(g2, startButton, "Start Game");
         drawButton(g2, instructionsButton, "How to Play");
@@ -197,8 +198,17 @@ public class GamePanel extends JPanel {
             for (int c = 0; c < board.getCols(); c++) {
                 int x = BOARD_X + c * TILE_SIZE;
                 int y = BOARD_Y + r * TILE_SIZE;
-                boolean forest = "Forest".equals(board.getTile(r, c).getTerrainType());
-                g2.setColor(forest ? new Color(0, 220, 0) : new Color(102, 255, 102));
+                String terrain = board.getTile(r, c).getTerrainType();
+                if (terrain.equals("Forests")) {
+                	g2.setColor(new Color(0, 220, 0));
+                } else if (terrain=="Plain") {
+                	g2.setColor(new Color(102,255,102));
+                } else if (terrain=="Bridge") {
+                	g2.setColor(new Color(150,75,0));
+                } else if (terrain=="River") {
+                	g2.setColor(new Color(0,0,220));
+                }
+                
                 g2.fillRect(x, y, TILE_SIZE, TILE_SIZE);
                 g2.setColor(Color.DARK_GRAY);
                 g2.drawRect(x, y, TILE_SIZE, TILE_SIZE);
@@ -207,7 +217,7 @@ public class GamePanel extends JPanel {
                 if (selected != null) {
                     int dist = Math.abs(selected.getRow() - r) + Math.abs(selected.getCol() - c);
                     if (!selected.hasMoved() && dist <= selected.getMovementRange()) {
-                        g2.setColor(new Color(80, 170, 255, 70));
+                        g2.setColor(new Color(0,0,225,50));
                         g2.fillRect(x, y, TILE_SIZE, TILE_SIZE);
                     }
                 }
@@ -249,15 +259,16 @@ public class GamePanel extends JPanel {
     		int y = BOARD_Y + unit.getRow() * TILE_SIZE;
 
     		g2.setColor(unit.isEnemy() ? new Color(180, 70, 70) : new Color(60, 110, 210));
-    		g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
+    		//g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
+    		g2.fillRect(x+10, y+10, TILE_SIZE-20, TILE_SIZE-20);
 
     		BufferedImage unitImage = getUnitImage(unit);
     		if (unitImage != null) {
     		g2.drawImage(unitImage, x + 12, y + 12, TILE_SIZE - 24, TILE_SIZE - 24, null);
     		}
 
-    		g2.setColor(Color.WHITE);
-    		g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+    		g2.setColor((unit.isEnemy() ? new Color(50,0,0) : new Color(0,0,50)));
+    		g2.setFont(new Font("HelvetiaNeue", Font.BOLD, 12));
     		g2.drawString(String.valueOf(unit.getHealth()), x + 5, y + 15);
     		}
     		
