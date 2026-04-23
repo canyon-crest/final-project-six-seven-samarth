@@ -83,6 +83,8 @@ public abstract class GameUnit implements Actionable {
     /**
      * @return true if the unit can still do something this turn
      */
+
+    
     public boolean canActThisTurn() {
         return isAlive() && (!hasMoved || !hasAttacked);
     }

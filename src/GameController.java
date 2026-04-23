@@ -34,7 +34,7 @@ public class GameController {
      * Sets up a new game.
      */
     public void startGame() {
-        board = new Board(8, 8);
+        board = new Board(9, 9);
         playerTeam = new Team();
         enemyTeam = new Team();
         ai = new EnemyAI();
@@ -44,13 +44,13 @@ public class GameController {
         screenState = GAME_SCREEN;
         endMessage = "";
 
-        playerTeam.addUnit(new Soldier(6, 1, false));
-        playerTeam.addUnit(new Archer(7, 2, false));
-        playerTeam.addUnit(new Knight(6, 3, false));
+        playerTeam.addUnit(new Soldier(7, 1, false)); 
+        playerTeam.addUnit(new Archer(8, 2, false)); 
+        playerTeam.addUnit(new Knight(7, 3, false));
 
-        enemyTeam.addUnit(new Soldier(1, 6, true));
-        enemyTeam.addUnit(new Archer(0, 5, true));
-        enemyTeam.addUnit(new Knight(1, 4, true));
+        enemyTeam.addUnit(new Soldier(1, 7, true)); 
+        enemyTeam.addUnit(new Archer(0, 6, true));
+        enemyTeam.addUnit(new Knight(1, 5, true));
 
         playerTeam.resetTurn();
         enemyTeam.resetTurn();
@@ -118,13 +118,28 @@ public class GameController {
             statusMessage = "This unit already moved.";
             return;
         }
+
         int distance = manhattan(selectedUnit.getRow(), selectedUnit.getCol(), row, col);
-        if (distance <= selectedUnit.getMovementRange()
-                && !board.isTileOccupied(row, col, getAllUnits())) {
-            selectedUnit.move(row, col);
-            statusMessage = selectedUnit.getName() + " moved.";
+        
+        int riverRow = 4;
+        int bridgeCol1 = 2;
+        int bridgeCol2 = 6;
+
+        boolean crossingRiver = (selectedUnit.getRow() < riverRow && row > riverRow) || 
+                                (selectedUnit.getRow() > riverRow && row < riverRow);
+        boolean landingInRiver = (row == riverRow);
+        boolean usingBridge = (col == bridgeCol1 || col == bridgeCol2);
+
+        if (distance <= selectedUnit.getMovementRange() && !board.isTileOccupied(row, col, getAllUnits())) {      
+            if ((crossingRiver || landingInRiver) && !usingBridge) {
+                statusMessage = "Cannot cross the river except at bridges!";
+            } else {
+                selectedUnit.move(row, col);
+                statusMessage = selectedUnit.getName() + " moved.";
+            }
+            
         } else {
-            statusMessage = "Invalid move.";
+            statusMessage = "Invalid move: out of range or occupied.";
         }
     }
 

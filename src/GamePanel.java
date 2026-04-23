@@ -18,7 +18,7 @@ import java.io.IOException;
  * Draws the game and handles mouse clicks.
  */
 public class GamePanel extends JPanel {
-    private static final int TILE_SIZE = 64;
+    private static final int TILE_SIZE = 55;
     private static final int BOARD_X = 40;
     private static final int BOARD_Y = 70;
     private static final int SIDEBAR_X = 590;
@@ -69,6 +69,7 @@ public class GamePanel extends JPanel {
      */
     public void handleClick(int x, int y) {
         int screen = controller.getScreenState();
+        
 
         if (screen == GameController.MENU_SCREEN) {
             if (startButton.contains(x, y)) {
@@ -89,8 +90,8 @@ public class GamePanel extends JPanel {
             }
             int row = (y - BOARD_Y) / TILE_SIZE;
             int col = (x - BOARD_X) / TILE_SIZE;
-            if (x >= BOARD_X && x < BOARD_X + TILE_SIZE * 8
-                    && y >= BOARD_Y && y < BOARD_Y + TILE_SIZE * 8) {
+            if (x >= BOARD_X && x < BOARD_X + TILE_SIZE * 9
+                    && y >= BOARD_Y && y < BOARD_Y + TILE_SIZE * 9) {
                 controller.handleTileClick(row, col);
             }
         } else if (screen == GameController.END_SCREEN) {
@@ -199,14 +200,14 @@ public class GamePanel extends JPanel {
                 int x = BOARD_X + c * TILE_SIZE;
                 int y = BOARD_Y + r * TILE_SIZE;
                 String terrain = board.getTile(r, c).getTerrainType();
-                if (terrain.equals("Forests")) {
+                if (terrain.equals("Forest")) {
                 	g2.setColor(new Color(0, 220, 0));
-                } else if (terrain=="Plain") {
+                } else if (terrain.equals("Plain")) {
                 	g2.setColor(new Color(102,255,102));
-                } else if (terrain=="Bridge") {
-                	g2.setColor(new Color(150,75,0));
-                } else if (terrain=="River") {
-                	g2.setColor(new Color(0,0,220));
+                } else if (terrain.equals("Bridge")) {
+                	g2.setColor(new Color(150,107,74));
+                } else if (terrain.equals("River")) {
+                	g2.setColor(new Color(45,116,250));
                 }
                 
                 g2.fillRect(x, y, TILE_SIZE, TILE_SIZE);
@@ -217,8 +218,14 @@ public class GamePanel extends JPanel {
                 if (selected != null) {
                     int dist = Math.abs(selected.getRow() - r) + Math.abs(selected.getCol() - c);
                     if (!selected.hasMoved() && dist <= selected.getMovementRange()) {
-                        g2.setColor(new Color(0,0,225,50));
-                        g2.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                    	boolean crossing = (selected.getRow() < 4 && r > 4) || (selected.getRow() > 4 && r < 4);
+                        boolean landing = (r == 4);
+                        boolean bridge = (c == 2 || c == 6);
+                        
+                        if (!( (crossing || landing) && !bridge )) {
+                            g2.setColor(new Color(0, 0, 225, 50));
+                            g2.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        }
                     }
                 }
             }
@@ -232,6 +239,7 @@ public class GamePanel extends JPanel {
             g2.drawRect(sx + 2, sy + 2, TILE_SIZE - 4, TILE_SIZE - 4);
             g2.drawRect(sx + 4, sy + 4, TILE_SIZE - 8, TILE_SIZE - 8);
         }
+       
     }
 
     private void drawUnits(Graphics2D g2, List<GameUnit> units) {
@@ -258,7 +266,7 @@ public class GamePanel extends JPanel {
     		int x = BOARD_X + unit.getCol() * TILE_SIZE;
     		int y = BOARD_Y + unit.getRow() * TILE_SIZE;
 
-    		g2.setColor(unit.isEnemy() ? new Color(180, 70, 70) : new Color(60, 110, 210));
+    		g2.setColor(unit.isEnemy() ? new Color(225, 0, 0) : new Color(0, 0, 225));
     		//g2.fillOval(x + 10, y + 10, TILE_SIZE - 20, TILE_SIZE - 20);
     		g2.fillRect(x+10, y+10, TILE_SIZE-20, TILE_SIZE-20);
 
@@ -267,7 +275,8 @@ public class GamePanel extends JPanel {
     		g2.drawImage(unitImage, x + 12, y + 12, TILE_SIZE - 24, TILE_SIZE - 24, null);
     		}
 
-    		g2.setColor((unit.isEnemy() ? new Color(50,0,0) : new Color(0,0,50)));
+    		//g2.setColor((unit.isEnemy() ? new Color(100,0,0) : new Color(0,0,100)));
+    		g2.setColor(Color.WHITE);
     		g2.setFont(new Font("HelvetiaNeue", Font.BOLD, 12));
     		g2.drawString(String.valueOf(unit.getHealth()), x + 5, y + 15);
     		}
