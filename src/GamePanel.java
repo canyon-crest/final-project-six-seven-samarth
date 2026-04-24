@@ -25,6 +25,8 @@ public class GamePanel extends JPanel {
     private static final int BOARD_X = 40;
     private static final int BOARD_Y = 70;
     private static final int SIDEBAR_X = 590;
+    
+    private final Color CR_GOLD = new Color(255, 215, 0);
     private final Color CR_BLUE = new Color(0, 102, 204);
     private final Color CR_DARK_STONE = new Color(45, 45, 45);
 
@@ -59,6 +61,7 @@ public class GamePanel extends JPanel {
         endTurnButton = new Rectangle(640, 500, 180, 45);
         playAgainButton = new Rectangle(300, 330, 140, 50);
         menuButton = new Rectangle(470, 330, 140, 50);
+       	playSound("sounds/intro.wav");
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -75,6 +78,7 @@ public class GamePanel extends JPanel {
      * @param x x-coordinate
      * @param y y-coordinate
      */
+    private void playSound(String soundFilePath) {
         try {
             File soundFile = new File(soundFilePath);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
