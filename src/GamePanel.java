@@ -13,6 +13,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.sound.sampled.*;
+import java.awt.GradientPaint;
+import java.awt.BasicStroke;
 
 /**
  * Draws the game and handles mouse clicks.
@@ -22,6 +25,8 @@ public class GamePanel extends JPanel {
     private static final int BOARD_X = 40;
     private static final int BOARD_Y = 70;
     private static final int SIDEBAR_X = 590;
+    private final Color CR_BLUE = new Color(0, 102, 204);
+    private final Color CR_DARK_STONE = new Color(45, 45, 45);
 
     private GameController controller;
 
@@ -35,6 +40,8 @@ public class GamePanel extends JPanel {
     private BufferedImage soldierImage;
     private BufferedImage archerImage;
     private BufferedImage knightImage;
+    
+    private Clip backgroundMusic;
 
     /**
      * Creates the panel.
@@ -42,7 +49,8 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         controller = new GameController();
         setPreferredSize(new Dimension(900, 620));
-        setBackground(new Color(30, 30, 45));
+        setBackground(new Color(33, 100, 144));
+        //setBackground(new Color(38, 127, 181));
 
         startButton = new Rectangle(330, 220, 240, 55);
         instructionsButton = new Rectangle(330, 295, 240, 55);
@@ -67,12 +75,38 @@ public class GamePanel extends JPanel {
      * @param x x-coordinate
      * @param y y-coordinate
      */
+        try {
+            File soundFile = new File(soundFilePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("Error playing sound: " + e.getMessage());
+        }
+    }
+    private void playBackgroundMusic(String filePath) {
+        try {
+            File musicFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioStream);
+            
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY); 
+            
+            backgroundMusic.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void handleClick(int x, int y) {
         int screen = controller.getScreenState();
         
 
         if (screen == GameController.MENU_SCREEN) {
             if (startButton.contains(x, y)) {
+            	playBackgroundMusic("sounds/background.wav");
                 controller.startGame();
             } else if (instructionsButton.contains(x, y)) {
                 controller.setScreenState(GameController.INSTRUCTIONS_SCREEN);
@@ -145,7 +179,9 @@ public class GamePanel extends JPanel {
         } else if (controller.getScreenState() == GameController.END_SCREEN) {
             drawEndScreen(g2);
         }
+        
     }
+
 
     private void drawMenu(Graphics2D g2) {
         g2.setColor(Color.WHITE);
@@ -325,15 +361,54 @@ public class GamePanel extends JPanel {
         drawButton(g2, menuButton, "Menu");
     }
 
+//    private void drawButton(Graphics2D g2, Rectangle rect, String label) {
+//        g2.setColor(new Color(85, 120, 220));
+//        g2.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
+//        g2.setColor(Color.WHITE);
+//        g2.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
+//        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+//        int textWidth = g2.getFontMetrics().stringWidth(label);
+//        int textX = rect.x + (rect.width - textWidth) / 2;
+//        int textY = rect.y + rect.height / 2 + 7;
+//        g2.drawString(label, textX, textY);
+//    }
     private void drawButton(Graphics2D g2, Rectangle rect, String label) {
-        g2.setColor(new Color(85, 120, 220));
-        g2.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
-        g2.setColor(Color.WHITE);
-        g2.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
-        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g2.setColor(new Color(180, 90, 0)); 
+        g2.fillRoundRect(rect.x, rect.y + 5, rect.width, rect.height, 20, 20);
+
+
+        GradientPaint goldGradient = new GradientPaint(
+            rect.x, rect.y, new Color(255, 215, 0), 
+            rect.x, rect.y + rect.height, new Color(255, 140, 0)
+        );
+        g2.setPaint(goldGradient);
+        g2.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 20);
+
+        g2.setStroke(new BasicStroke(2));
+        g2.setColor(new Color(0, 0, 0, 255)); 
+        g2.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 20);
+
+     // 4. Draw the Text with a Thick Outline/Shadow Combo
+        g2.setFont(new Font("SansSerif", Font.BOLD, 22));
         int textWidth = g2.getFontMetrics().stringWidth(label);
         int textX = rect.x + (rect.width - textWidth) / 2;
-        int textY = rect.y + rect.height / 2 + 7;
+        int textY = rect.y + rect.height / 2 + 8;
+
+        // --- DRAW THE BLACK OUTLINE/DEPTH ---
+        g2.setColor(Color.BLACK);
+
+        // Drawing the text slightly shifted in every direction creates the "outline"
+        g2.drawString(label, textX - 1, textY - 1); // Top-left
+        g2.drawString(label, textX + 1, textY - 1); // Top-right
+        g2.drawString(label, textX - 1, textY + 1); // Bottom-left
+        g2.drawString(label, textX + 1, textY + 1); // Bottom-right
+
+        // Drawing it 2-3 pixels down creates that "heavy" bottom shadow look
+        g2.drawString(label, textX, textY + 2); 
+        g2.drawString(label, textX, textY + 3);
+
+        // --- DRAW THE MAIN WHITE TEXT ON TOP ---
+        g2.setColor(Color.WHITE);
         g2.drawString(label, textX, textY);
     }
 
