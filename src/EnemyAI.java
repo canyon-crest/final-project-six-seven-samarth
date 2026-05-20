@@ -130,7 +130,36 @@ public class EnemyAI {
                     continue;
                 }
 
+                // FIX: Calculate the base score early so we can safely modify it below
                 int score = evaluateMove(enemy, target, r, c);
+
+
+                int riverRow = board.getRows() / 2; 
+                int bridgeCol1 = board.getCols() / 4;
+                int bridgeCol2 = (3 * board.getCols()) / 4;
+
+                boolean crossingRiver = (enemy.getRow() < riverRow && r > riverRow) || 
+                                        (enemy.getRow() > riverRow && r < riverRow);
+                boolean landingInRiver = (r == riverRow);
+                boolean usingBridge = (c == bridgeCol1 || c == bridgeCol2);
+
+                if ((crossingRiver || landingInRiver) && !usingBridge) {
+                    continue; // Discards illegal river steps
+                }
+
+                // Make the AI want to move across the bridge
+                if ((enemy.getRow() < riverRow && target.getRow() > riverRow) || 
+                    (enemy.getRow() > riverRow && target.getRow() < riverRow)) {
+                    
+                    int closestBridgeCol = (Math.abs(enemy.getCol() - bridgeCol1) < Math.abs(enemy.getCol() - bridgeCol2)) ? bridgeCol1 : bridgeCol2;
+                    
+                    // If moving to this coordinate 'c' gets the AI closer to the bridge channel, boost its rank
+                    if (Math.abs(c - closestBridgeCol) < Math.abs(enemy.getCol() - closestBridgeCol)) {
+                        score += 40; 
+                    }
+                }
+                // ==========================================
+
                 if (score > bestScore) {
                     bestScore = score;
                     bestRow = r;
@@ -140,6 +169,8 @@ public class EnemyAI {
         }
         return new int[]{bestRow, bestCol};
     }
+
+
 
     /**
      * Evaluates a move for the AI.
